@@ -4,7 +4,7 @@ from datetime import datetime
 
 # --- CONFIGURATION ---
 # Replace the link below with your Google Sheet link (ending in /export?format=csv)
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1TIf1Z7R-bLeavsHfC6GLoszM42N1iblpVL6s-ZLaFUU/edit?usp=drivesdk"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1TIf1Z7R-bLeavsHfC6GLoszM42N1iblpVL6s-ZLaFUU/export?format=csv"
 PAYSTACK_LINK = "https://paystack.shop/pay/vantagepro-ai"
 
 def check_access(user_key):
