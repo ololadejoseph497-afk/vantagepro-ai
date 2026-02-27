@@ -1,51 +1,56 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 
-# --- CONFIGURATION ---
-# Replace the link below with your Google Sheet link (ending in /export?format=csv)
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1TIf1Z7R-bLeavsHfC6GLoszM42N1iblpVL6s-ZLaFUU/export?format=csv"
-PAYSTACK_LINK = "https://paystack.shop/pay/vantagepro-ai"
+# This version has a built-in key so Google Sheets won't block you!
+st.set_page_config(page_title="VantagePro AI Suite", layout="wide")
 
-def check_access(user_key):
-    try:
-        df = pd.read_csv(SHEET_URL)
-        # Clean the data
-        df['Passkey'] = df['Passkey'].astype(str).str.strip()
+# CSS for styling
+st.markdown("""
+    <style>
+    .main { background-color: #0e1117; color: white; }
+    .stButton>button { width: 100%; border-radius: 5px; height: 3em; background-color: #ff4b4b; color: white; }
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("🛡️ VantagePro AI Suite")
+
+# Sidebar Login
+st.sidebar.header("User Authentication")
+passkey = st.sidebar.text_input("Enter Passkey", type="password")
+
+# THE "EMERGENCY" LOGIN LOGIC
+if passkey:
+    if passkey == "Joseph family":
+        st.sidebar.success("Access Granted: Permanent")
+        st.balloons()
         
-        # Check if the key exists and is Active
-        user_row = df[(df['Passkey'] == user_key) & (df['Status'] == 'Active')]
+        st.header("Welcome to the Dashboard")
+        st.write("You are now logged in as a Family Member.")
         
-        if not user_row.empty:
-            return True, user_row.iloc[0]['Type']
-        return False, None
-    except Exception as e:
-        st.error("Database connection error. Please try again.")
-        return False, None
-
-# --- WEBSITE INTERFACE ---
-st.set_page_config(page_title="VantagePro AI", page_icon="🚀")
-
-st.sidebar.title("🔐 VantagePro Login")
-user_input = st.sidebar.text_input("Enter Passkey:", type="password")
-
-if st.sidebar.button("Unlock Tools"):
-    is_valid, user_type = check_access(user_input)
-    
-    if is_valid:
-        st.sidebar.success(f"Access Granted: {user_type}")
-        st.session_state['authenticated'] = True
+        # This is where your tools will go next!
+        st.info("The AI Bypassing and Excel tools are ready to be added here.")
+        
     else:
-        st.sidebar.error("Invalid or Expired Key")
+        # Check Google Sheet as a backup for other customers
+        try:
+            # Replace the URL below with your link one last time if you want to test it
+            SHEET_URL = "https://docs.google.com/spreadsheets/d/1TIf1Z7R-bLeavsHfC6GLoszM42N1iblpVL6s-ZLaFUU/export?format=csv"
+            df = pd.read_csv(SHEET_URL)
+            user_data = df[df['Passkey'] == passkey]
+            
+            if not user_data.empty:
+                status = user_data.iloc[0]['Status']
+                if status == "Active":
+                    st.sidebar.success("Access Granted")
+                    st.write("Welcome, Customer!")
+                else:
+                    st.sidebar.error("Key Expired or Inactive")
+            else:
+                st.sidebar.error("Invalid Passkey")
+        except:
+            st.sidebar.error("Database Connection Error - But 'Joseph family' key will still work!")
 
-# --- LOCKED CONTENT ---
-if 'authenticated' not in st.session_state:
-    st.title("🏆 VantagePro AI Suite")
-    st.info("Please enter your passkey in the sidebar to begin.")
-    st.write("Don't have a key? Get one instantly below:")
-    st.link_button("💳 Purchase Access (₦5,000)", PAYSTACK_LINK)
 else:
-    # --- YOUR AI TOOLS GO HERE ---
-    st.title("🔓 VantagePro AI Dashboard")
-    st.write("Welcome back! Select a tool from the menu.")
-    # (Add your tool buttons/logic here)
+    st.warning("Please enter your passkey in the sidebar to begin.")
+    if st.button("Purchase Access"):
+        st.write("Redirecting to Paystack...")
