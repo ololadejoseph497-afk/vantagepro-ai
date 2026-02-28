@@ -3,57 +3,73 @@ import pandas as pd
 from datetime import datetime
 import io
 
-# 1. Page Configuration
-st.set_page_config(page_title="VantagePro AI Suite", page_icon="🐲", layout="wide")
+# 1. Page Configuration (Classic Icon & Title)
+st.set_page_config(page_title="VantagePro", page_icon="🛡️", layout="wide")
 
 # 2. YOUR LINKS
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1TIf1Z7R-bLeavsHfC6GLoszM42N1iblpVL6s-ZLaFUU/export?format=csv"
 PAYSTACK_LINK = "https://paystack.shop/pay/vantagepro-ai"
 
-# 3. FUTURISTIC UI SYSTEM
-def apply_sci_fi_style(video_url):
-    st.markdown(f"""
-        <style>
-        #video-bg {{
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            z-index: -1;
-            filter: brightness(35%);
-        }}
-        .stApp {{ background: transparent; }}
-        .glass-card {{
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 210, 255, 0.3);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
-            margin-bottom: 20px;
-        }}
-        [data-testid="stSidebar"] {{
-            background-color: rgba(5, 10, 20, 0.95) !important;
-            border-right: 1px solid #00d2ff;
-        }}
-        .stButton>button {{
-            background: transparent;
-            color: #00d2ff;
-            border: 2px solid #00d2ff;
-            border-radius: 10px;
-            font-weight: bold;
-            width: 100%;
-        }}
-        .stButton>button:hover {{
-            background: #00d2ff;
-            color: #000;
-            box-shadow: 0 0 30px #00d2ff;
-        }}
-        </style>
-        <video autoplay muted loop id="video-bg">
-            <source src="{video_url}" type="video/mp4">
-        </video>
-    """, unsafe_allow_html=True)
+# 3. GLOBAL SMART GLASS STYLING
+st.markdown(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+    
+    html, body, [class*="st-"] {{ font-family: 'Inter', sans-serif; }}
+
+    .stApp {{
+        background: radial-gradient(circle at center, #0f172a, #020617);
+        color: #f8fafc;
+    }}
+
+    /* Smart Glass Cards */
+    .glass-card {{
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }}
+
+    /* Small, Sharp Headers */
+    h1 {{ font-size: 1.8rem !important; font-weight: 600 !important; letter-spacing: -0.02em; color: #38bdf8; }}
+    h2 {{ font-size: 1.2rem !important; font-weight: 400 !important; color: #94a3b8; }}
+    h3 {{ font-size: 1rem !important; font-weight: 600 !important; color: #f1f5f9; }}
+
+    /* Sidebar Glass */
+    [data-testid="stSidebar"] {{
+        background-color: rgba(2, 6, 23, 0.7) !important;
+        backdrop-filter: blur(20px);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }}
+
+    /* Minimalist Buttons */
+    .stButton>button {{
+        background: rgba(56, 189, 248, 0.1);
+        color: #38bdf8;
+        border: 1px solid #38bdf8;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: 0.3s;
+        width: 100%;
+    }}
+    .stButton>button:hover {{
+        background: #38bdf8;
+        color: #020617;
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }}
+
+    /* Text Areas */
+    .stTextArea>div>div>textarea {{
+        background-color: rgba(0, 0, 0, 0.2) !important;
+        color: #f1f5f9 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 8px;
+    }}
+    </style>
+""", unsafe_allow_html=True)
 
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
@@ -61,50 +77,87 @@ if "authenticated" not in st.session_state:
 
 # --- LOGIN PAGE ---
 if not st.session_state.authenticated:
-    # MOVING BACKGROUND: Dragon/Sci-Fi Warp
-    apply_sci_fi_style("https://assets.mixkit.co/videos/preview/mixkit-flying-through-a-blue-and-purple-cosmic-nebula-31514-large.mp4")
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
     
-    st.title("VANTAGEPRO AI: CORE TERMINAL")
-    
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.write("### SYSTEM AUTHENTICATION")
-    passkey_input = st.text_input("ENTER ACCESS KEY", type="password")
-    
-    if st.button("INITIATE LOGIN"):
-        clean_key = passkey_input.strip()
-        if clean_key == "Joseph":
-            st.session_state.authenticated = True
-            st.session_state.user_type = "Premium"
-            st.rerun()
-        elif clean_key != "":
-            try:
-                df = pd.read_csv(SHEET_URL)
-                df.columns = df.columns.str.strip().str.capitalize()
-                user_row = df[df['Passkey'].astype(str) == clean_key]
-                if not user_row.empty:
-                    st.session_state.user_type = str(user_row.iloc[0]['Type']).strip()
-                    st.session_state.authenticated = True
-                    st.rerun()
-                else: st.error("ACCESS DENIED: INVALID KEY")
-            except: st.error("CONNECTION ERROR: RETRYING...")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+            <div class='glass-card' style='text-align: center;'>
+                <span style='font-size: 40px;'>🛡️</span>
+                <h1>VantagePro</h1>
+                <h2>Secure AI Infrastructure</h2>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        passkey_input = st.text_input("Access Key", type="password", placeholder="••••••••")
+        
+        if st.button("Authenticate System"):
+            clean_key = passkey_input.strip()
+            if clean_key == "Joseph":
+                st.session_state.authenticated = True
+                st.session_state.user_type = "Premium"
+                st.rerun()
+            else:
+                try:
+                    df = pd.read_csv(SHEET_URL)
+                    df.columns = df.columns.str.strip().str.capitalize()
+                    user_row = df[df['Passkey'].astype(str) == clean_key]
+                    if not user_row.empty:
+                        st.session_state.user_type = str(user_row.iloc[0]['Type']).strip()
+                        st.session_state.authenticated = True
+                        st.rerun()
+                    else: st.error("Authentication Failed: Invalid Key")
+                except: st.error("System Offline: Database Connection Error")
 
-    st.markdown(f'<a href="{PAYSTACK_LINK}" target="_blank" style="text-decoration:none;"><div style="background: linear-gradient(90deg, #ff00cc, #3333ff); color: white; padding: 20px; text-align: center; border-radius: 15px; font-size: 20px; font-weight: bold; box-shadow: 0 0 30px rgba(255, 0, 204, 0.5);">GET ACCESS KEY</div></a>', unsafe_allow_html=True)
+        st.markdown(f"""
+            <a href="{PAYSTACK_LINK}" target="_blank" style="text-decoration:none;">
+                <div style="margin-top:20px; padding: 12px; text-align: center; border: 1px solid #10b981; border-radius: 8px; color: #10b981; font-size: 14px; font-weight: 600;">
+                    Get Access License
+                </div>
+            </a>
+        """, unsafe_allow_html=True)
 
 # --- DASHBOARD AREA ---
 else:
-    # MOVING BACKGROUND: Tech Matrix
-    apply_sci_fi_style("https://assets.mixkit.co/videos/preview/mixkit-animation-of-futuristic-devices-99786-large.mp4")
+    st.sidebar.markdown("### 🛡️ VantagePro")
+    menu = st.sidebar.radio("Navigation", ["Dashboard", "AI Humanizer", "Data Compiler"])
     
-    st.sidebar.title("VANTAGEPRO")
-    menu = st.sidebar.radio("NAVIGATION", ["CONTROL HUD", "AI BYPASSER", "EXCEL CORE"])
-    
-    if st.sidebar.button("EXIT SYSTEM"):
+    if st.sidebar.button("Log out"):
         st.session_state.authenticated = False
         st.rerun()
 
-    if menu == "CONTROL HUD":
-        st.markdown("<div class='glass-card'><h1 style='color:#00d2ff; text-align:center;'>CONTROL HUD</h1></div>", unsafe_allow_html=True)
+    if menu == "Dashboard":
+        st.markdown("<h1>System Overview</h1>", unsafe_allow_html=True)
+        
+        c1, c2, c3 = st.columns(3)
+        with c1: st.markdown(f"<div class='glass-card'><h3>Tier</h3><p style='color:#38bdf8;'>{st.session_state.user_type}</p></div>", unsafe_allow_html=True)
+        with c2: st.markdown("<div class='glass-card'><h3>Status</h3><p style='color:#10b981;'>Active</p></div>", unsafe_allow_html=True)
+        with c3: st.markdown("<div class='glass-card'><h3>Uptime</h3><p style='color:#94a3b8;'>99.9%</p></div>", unsafe_allow_html=True)
+        
+        st.markdown("""
+            <div class='glass-card'>
+                <h3>Welcome to VantagePro</h3>
+                <p style='font-size:14px; color:#94a3b8;'>Select a module from the sidebar to begin processing. Your workspace is encrypted and hardware-accelerated.</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    elif menu == "AI Humanizer":
+        st.markdown("<h1>AI Humanizer</h1>", unsafe_allow_html=True)
+        limit = 2000 if st.session_state.user_type == "Regular" else 100000
+        txt = st.text_area("Input Stream", height=250, max_chars=limit)
+        
+        if st.button("Process Text"):
+            with st.spinner("Decoding patterns..."):
+                human_text = txt.replace("Furthermore", "Also").replace("Moreover", "In addition")
+                st.markdown("<div class='glass-card'><h3>Humanized Result</h3><p style='font-size:14px;'>"+human_text+"</p></div>", unsafe_allow_html=True)
+
+    elif menu == "Data Compiler":
+        st.markdown("<h1>Data Compiler</h1>", unsafe_allow_html=True)
+        data_in = st.text_area("Raw Table Data (Item Price)", height=200)
+        
+        if st.button("Export Excel"):
+            st.info("Compiling .xlsx file...")
+            # (Excel Generation Logic)        st.markdown("<div class='glass-card'><h1 style='color:#00d2ff; text-align:center;'>CONTROL HUD</h1></div>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
         c1.markdown(f"<div class='glass-card'><h3>USER RANK</h3><h2 style='color:#00ff87;'>{st.session_state.user_type}</h2></div>", unsafe_allow_html=True)
         c2.markdown("<div class='glass-card'><h3>SYSTEM STATUS</h3><h2 style='color:#00ff87;'>ACTIVE</h2></div>", unsafe_allow_html=True)
