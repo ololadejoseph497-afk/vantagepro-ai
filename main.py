@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 # 2. SYSTEM LINKS (REPLACE ID_HERE WITH YOUR ACTUAL GOOGLE SHEET ID)
-SHEET_URL = "https://docs.google.com/spreadsheets/d/ID_HERE/export?format=csv"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1TIf1Z7R-bLeavsHfC6GLoszM42N1iblpVL6s-ZLaFUU/export?format=csv"
 PAYSTACK_LINK = "https://paystack.shop/pay/vantagepro-ai"
 
 # 3. 3D & SCI-FI ARCHITECTURE 
